@@ -1,4 +1,4 @@
-import os
+import glob
 from pulp import LpMaximize, LpProblem, LpVariable, lpSum, PULP_CBC_CMD
 
 def create_3sat_ilp_model(clauses, num_variables):
@@ -35,11 +35,13 @@ def parse_cnf_string(cnf_string):
             clauses.append(clause)
     return clauses
 
-def run_test_cases(test_cases):
+def run_test_cases(test_cases_files):
     results = []
     solver = PULP_CBC_CMD(msg=False)  # Create solver object with message turned off
-    for i, cnf_string in enumerate(test_cases):
-        print(f"Running Test Case {i + 1}")
+    for i, test_case_file in enumerate(test_cases_files):
+        with open(test_case_file, 'r', encoding='utf-8') as file:
+            cnf_string = file.read()
+        print(f"Running Test Case {i + 1} - {test_case_file}")
         clauses = parse_cnf_string(cnf_string)
         num_clauses = len(clauses)
         nOfVariables = maxInput(clauses)
@@ -60,7 +62,8 @@ def run_test_cases(test_cases):
             "truth_values": truth_values[1:],  # Ignore the first element (index 0) as variables are 1-based
             "clause_satisfiability": clause_satisfiability,
             "is_satisfiable": problem.objective.value() == num_clauses,
-            "index": i + 1  # Adding index of the test case
+            "index": i + 1,  # Adding index of the test case
+            "file_name": test_case_file  # Adding file name of the test case
         }
         results.append(result)
     return results
@@ -70,18 +73,20 @@ def print_results(results):
     satisfied_cases = sum(result['is_satisfiable'] for result in results)
     unsatisfied_cases = total_cases - satisfied_cases
     unsatisfied_indices = [result['index'] for result in results if not result['is_satisfiable']]
+    unsatisfied_files = [result['file_name'] for result in results if not result['is_satisfiable']]
     
     print(f"Total test cases: {total_cases}")
     print(f"Total satisfied test cases: {satisfied_cases}")
     print(f"Total unsatisfied test cases: {unsatisfied_cases}")
     if unsatisfied_cases > 0:
         print(f"Indices of unsatisfied test cases: {unsatisfied_indices}")
+        print(f"Files of unsatisfied test cases: {unsatisfied_files}")
     
     # Ask user if they want detailed results
     user_input = input("Would you like to see the detailed results of each test case? (yes/no): ").strip().lower()
     if user_input == "yes":
         for i, result in enumerate(results):
-            print(f"Results for Test Case {i + 1}")
+            print(f"Results for Test Case {result['index']} - {result['file_name']}")
             print(f"Number of clauses: {result['num_clauses']}")
             print(f"Max number of satisfied clauses: {result['max_satisfied_clauses']}")
             if result['is_satisfiable']:
@@ -91,18 +96,11 @@ def print_results(results):
             print(f"Truth values of variables: {result['truth_values']}")
             print(f"Satisfiability of each clause: {result['clause_satisfiability']}\n")
 
-def load_test_cases(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
-    test_cases = content.split('---')  # Assuming '---' is the delimiter between test cases
-    return [case.strip() for case in test_cases]
-
-# Receiving input
-file_path = 'clauses.txt'
-test_cases = load_test_cases(file_path)
+# List of test case files in the folder
+test_cases_files = glob.glob('test_cases/*.cnf')  # Adjust the folder path and file extension if needed
 
 # Run the test cases
-results = run_test_cases(test_cases)
+results = run_test_cases(test_cases_files)
 
 # Print the results
 print_results(results)
