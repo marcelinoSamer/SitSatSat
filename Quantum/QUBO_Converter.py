@@ -122,10 +122,7 @@ def solve_Clause(assignment,clause):
     if(assignment[abs(clause[0])-1] or assignment[abs(clause[1])-1] or assignment[abs(clause[2])-1]):
         return 1
     return 0
-# Example Usage
-# solved=0
 
-# file_path = "statement.txt"  # Replace with the path to your CNF file
 def FullApprox(n,file_path):
     QUBO = {(i,j):0 for i in range(n) for j in range(i,n)}    
     for clause in parse_cnf_file(file_path):
@@ -138,7 +135,6 @@ def Chancellor(n,m,file_path):
         chancellorMethod(QUBO,clause,n,m)
     return QUBO
 
-# variable_Assignment= {0: 1, 1: 1, 2: 1, 3: 0, 4: 1, 5: 0, 6: 1, 7: 1, 8: 1, 9: 0, 10: 1, 11: 1, 12: 0, 13: 0, 14: 0, 15: 1, 16: 0, 17: 1, 18: 1, 19: 1}
 def clauses_Satisfied(variable_Assignment,file_path):
     solved =0
     for clause in parse_cnf_file(file_path):

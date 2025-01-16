@@ -15,10 +15,12 @@ def get_solutions(filename):
 
 def get_max(values):
     max =0
-    for value in values:
-        if(value>max):
-            max=value
-    return max
+    solution_index=0
+    for i in range(len(values)):
+        if(values[i]>max):
+            max=values[i]
+            solution_index=i
+    return max,solution_index
 def max_solutions(file_path):
     max_list=[]
     for path in os.listdir(file_path):
@@ -38,7 +40,6 @@ def plot_distinct_solutions(file_path):
     for solution in max_list:
         solution_counts[solution] = solution_counts.get(solution, 0) + 1
 
-    # Prepare data for plotting
     distinct_solutions = list(solution_counts.keys())
     counts = list(solution_counts.values())
 
@@ -68,7 +69,7 @@ def plot_k_most_repeated_solutions_binary(solutions, k, test_path, result_path):
     with open(result_path,"a") as file:
         file.write(f"Top {k} Most Repeated Solutions:")
         for rank, (solution_dict, count) in enumerate(most_common_solutions_dicts, start=1):
-            file.write(f"{rank}. Solution: {str(solution_dict)}, Occurrences: {count}, Satisfies: {QUBO_Converter.clauses_Satisfied(solution_dict, test_path)}\n")
+            file.write(f"{rank}. Solution: {str(solution_dict)}, Occurrences: {count}, Satisfies: {QUBO_Converter.clauses_Satisfied(solution_dict, test_path)}\n".replace("np.int8(", "").replace(")", ""))
 
     return most_common_solutions_dicts
 
@@ -97,3 +98,9 @@ def plot_energy(energies):
     plt.ylabel('Energy')
     plt.title('Energy of Each Solution')
     plt.show()
+
+def max_solvable(result_file):
+    solved=get_solutions(result_file)
+    max_solved,solution_index=get_max(solved)
+    print("Maximums Closes Solved:", max_solved)
+    return solution_index
