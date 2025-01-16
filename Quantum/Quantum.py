@@ -14,7 +14,7 @@ directory = "results"
 
 # Sort files using natural sorting
 sorted_files = sorted(os.listdir(folder_path), key=natural_sort_key)
-
+print("Please know that your results are stored inside the reults folder\n")
 for index, path in enumerate(sorted_files):
     os.makedirs(directory,exist_ok=True)
     test_path=os.path.join(folder_path,path)
